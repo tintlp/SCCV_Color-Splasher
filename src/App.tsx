@@ -212,19 +212,32 @@ export default function App() {
         const baseLMin = bucket.lightRange ? bucket.lightRange[0] : 15;
         const baseLMax = bucket.lightRange ? bucket.lightRange[1] : 85;
 
-        const sMin = Math.max(0, baseSMin - satTolerance);
-        const sMax = Math.min(100, baseSMax + satTolerance);
-        const lMin = Math.max(0, baseLMin - lightTolerance);
-        const lMax = Math.min(100, baseLMax + lightTolerance);
+        let sMin = Math.max(0, baseSMin - satTolerance);
+        let sMax = Math.min(100, baseSMax + satTolerance);
+        let lMin = Math.max(0, baseLMin - lightTolerance);
+        let lMax = Math.min(100, baseLMax + lightTolerance);
 
-        if (sMin > sMax || lMin > lMax) continue;
+        if (sMin > sMax) {
+          const mid = (baseSMin + baseSMax) / 2;
+          sMin = mid - 0.5;
+          sMax = mid + 0.5;
+        }
+        if (lMin > lMax) {
+          const mid = (baseLMin + baseLMax) / 2;
+          lMin = mid - 0.5;
+          lMax = mid + 0.5;
+        }
 
         if (s >= sMin && s <= sMax && l >= lMin && l <= lMax) {
           let match = false;
           for (const range of bucket.hueRange) {
-            const hMin = range[0] - hueTolerance;
-            const hMax = range[1] + hueTolerance;
-            if (hMin > hMax) continue;
+            let hMin = range[0] - hueTolerance;
+            let hMax = range[1] + hueTolerance;
+            if (hMin > hMax) {
+              const mid = (range[0] + range[1]) / 2;
+              hMin = mid - 0.5;
+              hMax = mid + 0.5;
+            }
             
             if (hMin < 0 && h >= hMin + 360) match = true;
             else if (hMax > 360 && h <= hMax - 360) match = true;
@@ -243,7 +256,7 @@ export default function App() {
     const detected = COLOR_BUCKETS.map(b => ({
       ...b,
       percentage: totalValidPixels > 0 ? (colorCounts[b.id] / totalValidPixels) * 100 : 0
-    })).filter(b => b.percentage > 0.1).sort((a, b) => b.percentage - a.percentage);
+    })).filter(b => b.percentage > 0.01).sort((a, b) => b.percentage - a.percentage);
 
     setDetectedColors(detected);
   }, [tolerance]);
@@ -277,10 +290,21 @@ export default function App() {
     const baseLMin = bucket.lightRange ? bucket.lightRange[0] : 15;
     const baseLMax = bucket.lightRange ? bucket.lightRange[1] : 85;
 
-    const sMin = Math.max(0, baseSMin - satTolerance);
-    const sMax = Math.min(100, baseSMax + satTolerance);
-    const lMin = Math.max(0, baseLMin - lightTolerance);
-    const lMax = Math.min(100, baseLMax + lightTolerance);
+    let sMin = Math.max(0, baseSMin - satTolerance);
+    let sMax = Math.min(100, baseSMax + satTolerance);
+    let lMin = Math.max(0, baseLMin - lightTolerance);
+    let lMax = Math.min(100, baseLMax + lightTolerance);
+
+    if (sMin > sMax) {
+      const mid = (baseSMin + baseSMax) / 2;
+      sMin = mid - 0.5;
+      sMax = mid + 0.5;
+    }
+    if (lMin > lMax) {
+      const mid = (baseLMin + baseLMax) / 2;
+      lMin = mid - 0.5;
+      lMax = mid + 0.5;
+    }
 
     for (let i = 0; i < data.length; i += 4) {
       const r = data[i];
@@ -291,11 +315,15 @@ export default function App() {
       
       let match = false;
       
-      if (sMin <= sMax && lMin <= lMax && s >= sMin && s <= sMax && l >= lMin && l <= lMax) {
+      if (s >= sMin && s <= sMax && l >= lMin && l <= lMax) {
         for (const range of bucket.hueRange) {
-          const hMin = range[0] - hueTolerance;
-          const hMax = range[1] + hueTolerance;
-          if (hMin > hMax) continue;
+          let hMin = range[0] - hueTolerance;
+          let hMax = range[1] + hueTolerance;
+          if (hMin > hMax) {
+            const mid = (range[0] + range[1]) / 2;
+            hMin = mid - 0.5;
+            hMax = mid + 0.5;
+          }
           
           if (hMin < 0 && h >= hMin + 360) match = true;
           else if (hMax > 360 && h <= hMax - 360) match = true;
