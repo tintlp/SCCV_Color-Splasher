@@ -1,0 +1,5 @@
+{
+  "name": "Color Splash Filter",
+  "description": "Upload an image, automatically detect dominant colors, and apply a selective color filter to keep only the chosen color while turning the rest to black and white.",
+  "requestFramePermissions": []
+}
